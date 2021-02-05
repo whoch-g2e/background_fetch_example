@@ -44,11 +44,6 @@ Future<void> headlessTask(String taskId) async {
 void main() {
   initializeDateFormatting();
   runApp(MyApp());
-
-  // Register to receive BackgroundFetch events after app is terminated.
-  // Requires {stopOnTerminate: false, enableHeadless: true}
-  /// 앱이 종료될 때 수행할 작업을 등록함
-  BackgroundFetch.registerHeadlessTask(headlessTask);
 }
 
 class MyApp extends StatelessWidget {
@@ -96,6 +91,8 @@ class _TestScreenState extends State<TestScreen> with WidgetsBindingObserver {
   }
 
   Future<void> _onConfigure() async {
+    final success = await BackgroundFetch.registerHeadlessTask(headlessTask);
+    if (!success) throw Exception('fail: register headless task');
     final int status = await BackgroundFetch.configure(
       BackgroundFetchConfig(
         minimumFetchInterval: 15,
@@ -140,7 +137,7 @@ class _TestScreenState extends State<TestScreen> with WidgetsBindingObserver {
     // IMPORTANT:  You must signal completion of your fetch task or the OS can punish your app
     // for taking too long in the background.
     BackgroundFetch.finish(taskId);
-    setState(() {}); // TODO(찬영) 이 메서드는 뭐죠
+    _onLoad();
   }
 
   /// [BackgroundFetch]의 status 관련 static 상수 참고
